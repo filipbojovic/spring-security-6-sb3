@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/jwt_security
+    username: postgres
+    password: qwerty
+    driver-class-name: org.postgresql.Driver # it wll help the spring to detect and use the best driver
+  jpa:
+    hibernate:
+      # tell the app what to do on the startup
+      ddl-auto: create-drop # start always with an empty database
+    show-sql: true # when spring data jpa performs a query, it will be visible
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
