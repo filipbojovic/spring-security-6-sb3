@@ -1,8 +1,14 @@
 package com.oauth2demo.authorizationserver.dto;
 
-import lombok.Value;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Value
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PlayerRegistrationRequest {
 
     String email;

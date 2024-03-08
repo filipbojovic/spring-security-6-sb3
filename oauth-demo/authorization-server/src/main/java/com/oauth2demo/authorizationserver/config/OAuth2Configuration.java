@@ -60,6 +60,7 @@ public class OAuth2Configuration {
                 .clientSecret("secret")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
 //                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .redirectUri("http://127.0.0.1:3000/authorized") // when authorization endpoint has been called and user has been authorized successfully, the authorization server will redirect back to FE url
                 .scope(OidcScopes.OPENID) // use set of rules defined by the OPENID protocol? It is possible to specify ours, e.g. "ADMIN"

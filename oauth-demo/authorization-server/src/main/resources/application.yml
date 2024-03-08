@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5433/jwt_security
+    url: jdbc:postgresql://localhost:5432/oauth2_demo
     username: postgres
     password: qwerty
     driver-class-name: org.postgresql.Driver # it wll help the spring to detect and use the best driver
