@@ -5,15 +5,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class PlayerRegistrationRequest {
 
-    String email;
-    String password;
-    String name;
-    String role;
+    String       email;
+    String       password;
+    String       name;
+    List<String> roles;
 
 }

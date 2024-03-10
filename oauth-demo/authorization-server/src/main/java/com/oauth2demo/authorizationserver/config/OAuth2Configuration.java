@@ -5,15 +5,17 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.oauth2demo.authorizationserver.config.keys.JwksKeys;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
@@ -30,19 +32,37 @@ import java.time.Duration;
 import java.util.UUID;
 
 @Configuration
+@RequiredArgsConstructor
 public class OAuth2Configuration {
+
+    private final AuthenticationProvider authenticationProvider;
+
+    @Value("${franchise-client.client-id}")
+    private String franchiseClientId;
+    @Value("${franchise-client.client-secret}")
+    private String franchiseClientSecret;
+    @Value("${backoffice-client.client-id}")
+    private String backofficeClientId;
+    @Value("${backoffice-client.client-secret}")
+    private String backofficeClientSecret;
+
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE) //
     public SecurityFilterChain oAuth2SecurityFilterChain(HttpSecurity http) throws Exception {
         // pre-configuration approach which configures everything we need to have configured
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
 
-        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class).oidc(Customizer.withDefaults());
-        http.exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")))
+        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+                .oidc(Customizer.withDefaults())
+                .tokenEndpoint(tokenEndpoint -> tokenEndpoint
+                        .authenticationProvider(authenticationProvider));
+        http.exceptionHandling(
+                        exceptions -> exceptions.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")))
                 .oauth2ResourceServer(oauth -> oauth.jwt(Customizer.withDefaults()));
 
-        return http.formLogin(conf -> conf.usernameParameter("fika"))
-                .build();
+//        http.formLogin(conf -> conf.usernameParameter("fika"));
+//                .build();
+        return http.build();
     }
 
     /**
@@ -55,15 +75,14 @@ public class OAuth2Configuration {
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
         var rc = RegisteredClient
-                .withId(UUID.randomUUID().toString()) // is just the identifier of a record in the authorization server, not the actual client id
-                .clientId("client")
-                .clientSecret("secret")
+                .withId(UUID.randomUUID()
+                        .toString()) // is just the identifier of a record in the authorization server, not the actual client id
+                .clientId("fika")
+                .clientSecret("fika")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
 //                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .redirectUri("http://127.0.0.1:3000/authorized") // when authorization endpoint has been called and user has been authorized successfully, the authorization server will redirect back to FE url
-                .scope(OidcScopes.OPENID) // use set of rules defined by the OPENID protocol? It is possible to specify ours, e.g. "ADMIN"
+                .authorizationGrantType(AuthorizationGrantType.PASSWORD)
+                .scope("backoffice-client") // use set of rules defined by the OPENID protocol? It is possible to specify ours, e.g. "ADMIN"
                 .clientSettings(ClientSettings.builder()
                         .requireAuthorizationConsent(true)
                         .build())
